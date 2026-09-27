@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Tables;
 
@@ -21,30 +22,17 @@ public class SearchResultsTableComponent
 
         var boxXPath = resultType switch
         {
-            "clubs" =>
-                "//div[contains(@class,'box')]" +
-                "[.//h2[contains(" +
-                "translate(normalize-space(.)," +
-                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ'," +
-                "'abcdefghijklmnopqrstuvwxyz')," +
-                "'clubs')]]",
-
-            "players" =>
-                "//div[contains(@class,'box')]" +
-                "[.//h2[contains(" +
-                "translate(normalize-space(.)," +
-                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ'," +
-                "'abcdefghijklmnopqrstuvwxyz')," +
-                "'players')]]",
+            Constants.ClubsResultType => Constants.ClubsResultBoxXPath,
+            Constants.PlayersResultType => Constants.PlayersResultBoxXPath,
 
             _ => throw new ArgumentException(
-                $"Unsupported search result type: {_resultType}",
+                string.Format(Constants.UnsupportedSearchResultTypeMessage, _resultType),
                 nameof(_resultType))
         };
 
         return _page
             .Locator($"xpath={boxXPath}")
-            .Locator(".responsive-table table.items")
+            .Locator(Constants.SearchResultsTableSelector)
             .First;
     }
 
@@ -60,7 +48,7 @@ public class SearchResultsTableComponent
             });
 
         return await table
-            .Locator("thead tr th:not(:first-child)")
+            .Locator(Constants.SearchResultHeadersSelector)
             .AllInnerTextsAsync();
     }
 

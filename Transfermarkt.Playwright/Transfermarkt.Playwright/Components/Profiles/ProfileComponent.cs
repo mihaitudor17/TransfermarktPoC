@@ -1,13 +1,11 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Profiles;
 
 public class ProfileComponent
 {
     private readonly IPage _page;
-
-    private const string TitleSelector =
-        ".data-header > div:first-child h1";
 
     public ProfileComponent(IPage page)
     {
@@ -17,7 +15,7 @@ public class ProfileComponent
     public async Task<string> GetTitleAsync()
     {
         return (await _page
-                .Locator(TitleSelector)
+                .Locator(Constants.ProfileTitleSelector)
                 .InnerTextAsync())
             .Trim();
     }

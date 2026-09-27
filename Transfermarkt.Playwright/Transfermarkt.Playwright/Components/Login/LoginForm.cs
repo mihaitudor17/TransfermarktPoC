@@ -1,34 +1,11 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Login;
 
 public class LoginForm
 {
     private readonly IPage _page;
-
-    private const string GuestDropdownSelector =
-        "div[class*='dropdown user-guest']";
-
-    private const string LoginSectionSelector =
-        "div[class*='login']";
-
-    private const string LoginFormSelector =
-        "form[class*='login-form']";
-
-    private const string UsernameSelector =
-        "#username";
-
-    private const string PasswordSelector =
-        "#password";
-
-    private const string RememberMeSelector =
-        "input[type='checkbox']";
-
-    private const string SubmitButtonSelector =
-        "button[type='submit']";
-
-    private const string ForgotLoginDetailsSelector =
-        "a[href='/profil/loginDetails']";
 
     public LoginForm(IPage page)
     {
@@ -37,24 +14,24 @@ public class LoginForm
 
     private ILocator LoginSection =>
         _page
-            .Locator(GuestDropdownSelector)
-            .Locator(LoginSectionSelector);
+            .Locator(Constants.GuestDropdownSelector)
+            .Locator(Constants.LoginSectionSelector);
 
     private ILocator Form =>
-        LoginSection.Locator(LoginFormSelector);
+        LoginSection.Locator(Constants.LoginFormSelector);
 
     private ILocator PasswordInput =>
-        Form.Locator(PasswordSelector);
+        Form.Locator(Constants.PasswordSelector);
 
     private ILocator PasswordToggle =>
         PasswordInput
-            .Locator("..")
-            .Locator("button");
+            .Locator(Constants.PasswordToggleContainerSelector)
+            .Locator(Constants.PasswordToggleButtonSelector);
 
     public async Task FillUsernameAsync(string username)
     {
         await Form
-            .Locator(UsernameSelector)
+            .Locator(Constants.UsernameSelector)
             .FillAsync(username);
     }
 
@@ -66,7 +43,7 @@ public class LoginForm
     public async Task SetRememberMeAsync(bool remember)
     {
         var checkbox = Form
-            .Locator(RememberMeSelector);
+            .Locator(Constants.RememberMeSelector);
 
         if (remember)
         {
@@ -85,48 +62,48 @@ public class LoginForm
 
     public async Task<string> GetPasswordInputTypeAsync()
     {
-        return await PasswordInput.GetAttributeAsync("type")
+        return await PasswordInput.GetAttributeAsync(Constants.PasswordTypeAttribute)
                ?? string.Empty;
     }
 
     public async Task LoginAsync()
     {
         await Form
-            .Locator(SubmitButtonSelector)
+            .Locator(Constants.SubmitButtonSelector)
             .ClickAsync();
     }
 
     public async Task<bool> IsRememberMeCheckedAsync()
     {
         return await Form
-            .Locator(RememberMeSelector)
+            .Locator(Constants.RememberMeSelector)
             .IsCheckedAsync();
     }
 
     public async Task OpenForgotLoginDetailsAsync()
     {
         await Form
-            .Locator(ForgotLoginDetailsSelector)
+            .Locator(Constants.ForgotLoginDetailsSelector)
             .ClickAsync();
     }
     
     public async Task<bool> IsLoginButtonEnabledAsync()
     {
         return await Form
-            .Locator(SubmitButtonSelector)
+            .Locator(Constants.SubmitButtonSelector)
             .IsEnabledAsync();
     }
 
     public async Task<bool> HasUsernameErrorAsync()
     {
-        var error = Form.Locator("div[class*='error-list']");
+        var error = Form.Locator(Constants.ErrorListSelector);
 
         return await error.IsVisibleAsync();
     }
 
     public async Task<string> GetUsernameErrorAsync()
     {
-        var error = Form.Locator("div[class*='error-list']");
+        var error = Form.Locator(Constants.ErrorListSelector);
 
         await error.WaitForAsync(
             new LocatorWaitForOptions
@@ -140,7 +117,7 @@ public class LoginForm
 
     public async Task WaitForUsernameErrorToAppearAsync()
     {
-        var error = Form.Locator("div[class*='error-list']");
+        var error = Form.Locator(Constants.ErrorListSelector);
 
         await error.WaitForAsync(
             new LocatorWaitForOptions
@@ -152,7 +129,7 @@ public class LoginForm
 
     public async Task WaitForUsernameErrorToDisappearAsync()
     {
-        var error = Form.Locator("div[class*='error-list']");
+        var error = Form.Locator(Constants.ErrorListSelector);
 
         await Assertions.Expect(error).ToHaveCountAsync(0);
     }

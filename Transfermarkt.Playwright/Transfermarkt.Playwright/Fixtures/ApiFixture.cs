@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Fixtures;
     
@@ -14,7 +15,7 @@ public class ApiFixture : IAsyncDisposable
         Request = await Playwright.APIRequest.NewContextAsync(
             new APIRequestNewContextOptions
             {
-                BaseURL = "https://www.transfermarkt.com"
+                BaseURL = Constants.TransfermarktBaseUrl
             });
     }
 

@@ -173,9 +173,14 @@ public class HomePageTests : BaseTest
         foreach (var table in tables)
         {
             var rows = await matches.GetRowsAsync(table);
+            var matchDate = string.Empty;
 
             foreach (var row in rows)
             {
+                var rowDate = (await row.Locator("td").Nth(0).InnerTextAsync()).Trim();
+                if (!string.IsNullOrEmpty(rowDate))
+                    matchDate = rowDate;
+
                 var time = (
                     await row
                         .Locator("td")
@@ -183,15 +188,19 @@ public class HomePageTests : BaseTest
                         .InnerTextAsync())
                     .Trim();
 
+                var isFuture = DateTime.TryParseExact(
+                    $"{matchDate} {time}", "ddd dd/MM/yyyy h:mm tt",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None,
+                    out var kickoff) && kickoff > DateTime.Now;
+
                 Assert.That(
-                    DateTime.TryParseExact(
-                        time,
-                        "h:mm tt",
-                        CultureInfo.InvariantCulture,
-                        DateTimeStyles.None,
-                        out _),
+                    isFuture
+                        ? DateTime.TryParseExact(
+                            time, "h:mm tt", CultureInfo.InvariantCulture,
+                            DateTimeStyles.None, out _)
+                        : Regex.IsMatch(time, @"^\d+:\d+$"),
                     Is.True,
-                    $"Invalid match time: '{time}'.");
+                    $"Invalid match time or score: '{time}' for '{matchDate}'.");
             }
         }
     }
