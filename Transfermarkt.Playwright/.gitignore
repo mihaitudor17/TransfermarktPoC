@@ -1,0 +1,30 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+[Aa]rtifacts/
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet packages
+packages/
+!**/packages/build/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IntelliJ IDEA and JetBrains Rider
+.idea/
+*.iml
+*.sln.DotSettings.user
+riderModule.iml
+_ReSharper.Caches/
+*.DotSettings.user
+
+# macOS
+.DS_Store
