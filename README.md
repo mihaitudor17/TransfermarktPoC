@@ -204,28 +204,43 @@ This provides evidence that the test suite was executed locally.
 Transfermarkt.Playwright/
 ├── Components/
 │   ├── Cookies/
+│   │   └── CookieBannerComponent.cs
 │   ├── Login/
+│   │   ├── LoginComponent.cs
+│   │   ├── LoginForm.cs
+│   │   └── RegistrationComponent.cs
 │   ├── Profiles/
+│   │   └── ProfileComponent.cs
 │   ├── Search/
+│   │   └── SearchComponent.cs
 │   ├── Tables/
+│   │   ├── HomeMatchesTableComponent.cs
+│   │   └── SearchResultsTableComponent.cs
 │   └── TopBar/
-│
+│       ├── TopBarComponent.cs
+│       ├── TopBarDestination.cs
+│       └── TopBarDestinationExtensions.cs
 ├── Fixtures/
 │   ├── ApiFixture.cs
 │   └── PlaywrightFixture.cs
-│
 ├── Helpers/
+│   ├── Constants.cs
 │   └── HttpErrorMonitor.cs
-│
 ├── Tests/
+│   ├── BaseTest.cs
 │   ├── E2E/
+│   │   ├── HomePageTests.cs
+│   │   ├── LoginTests.cs
+│   │   ├── RegistrationTests.cs
+│   │   ├── SearchTests.cs
+│   │   └── TopBarTests.cs
 │   ├── Integration/
+│   │   ├── ApiRequestTests.cs
+│   │   └── NetworkTests.cs
 │   └── Unit/
-│
+│       └── TopBarDestinationExtensionsTests.cs
 ├── TestResults/
 │   └── test-output.txt
-│
-├── README.md
 └── Transfermarkt.Playwright.csproj
 ```
 
