@@ -10,7 +10,6 @@ public class HomePageTests : BaseTest
     {
         var matches = new HomeMatchesTableComponent(Page);
         var tables = await matches.GetTablesAsync();
-
         Assert.That(
             tables,
             Is.Not.Empty,
@@ -169,6 +168,10 @@ public class HomePageTests : BaseTest
     {
         var matches = new HomeMatchesTableComponent(Page);
         var tables = await matches.GetTablesAsync();
+        var centralEuropeanTimeZone = TimeZoneInfo.FindSystemTimeZoneById(
+            OperatingSystem.IsWindows() ? "W. Europe Standard Time" : "Europe/Berlin");
+        var centralEuropeanNow = TimeZoneInfo.ConvertTimeFromUtc(
+            DateTime.UtcNow, centralEuropeanTimeZone);
 
         foreach (var table in tables)
         {
@@ -191,7 +194,7 @@ public class HomePageTests : BaseTest
                 var isFuture = DateTime.TryParseExact(
                     $"{matchDate} {time}", "ddd dd/MM/yyyy h:mm tt",
                     CultureInfo.InvariantCulture, DateTimeStyles.None,
-                    out var kickoff) && kickoff > DateTime.Now;
+                    out var kickoff) && kickoff > centralEuropeanNow;
 
                 Assert.That(
                     isFuture
