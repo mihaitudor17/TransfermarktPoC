@@ -1,19 +1,11 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Login;
 
 public class RegistrationComponent
 {
     private readonly IPage _page;
-
-    private const string GuestDropdownSelector =
-        "div[class*='dropdown user-guest']";
-
-    private const string RegisterSectionSelector =
-        "div[class*='register']";
-
-    private const string RegisterTitleSelector =
-        "h3[class*='register-title']";
 
     public RegistrationComponent(IPage page)
     {
@@ -22,13 +14,13 @@ public class RegistrationComponent
 
     private ILocator RegisterSection =>
         _page
-            .Locator(GuestDropdownSelector)
-            .Locator(RegisterSectionSelector);
+            .Locator(Constants.GuestDropdownSelector)
+            .Locator(Constants.RegisterSectionSelector);
 
     public async Task<string> GetTitleAsync()
     {
         return (await RegisterSection
-                .Locator(RegisterTitleSelector)
+                .Locator(Constants.RegisterTitleSelector)
                 .InnerTextAsync())
             .Trim();
     }
@@ -37,7 +29,7 @@ public class RegistrationComponent
     {
         await RegisterSection
             .GetByText(
-                "Sign up now",
+                Constants.SignUpNowText,
                 new LocatorGetByTextOptions
                 {
                     Exact = true
@@ -49,7 +41,7 @@ public class RegistrationComponent
     {
         await RegisterSection
             .GetByText(
-                "Why register?",
+                Constants.WhyRegisterText,
                 new LocatorGetByTextOptions
                 {
                     Exact = true

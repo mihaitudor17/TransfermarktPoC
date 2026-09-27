@@ -1,12 +1,11 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Tables;
 
 public class HomeMatchesTableComponent
 {
     private readonly IPage _page;
-
-    private const string TableSelector = "table.startseite";
 
     public HomeMatchesTableComponent(IPage page)
     {
@@ -15,7 +14,7 @@ public class HomeMatchesTableComponent
 
     public async Task<IReadOnlyList<ILocator>> GetTablesAsync()
     {
-        var tables = _page.Locator(TableSelector);
+        var tables = _page.Locator(Constants.HomeMatchesTableSelector);
         var count = await tables.CountAsync();
 
         var result = new List<ILocator>();
@@ -32,7 +31,7 @@ public class HomeMatchesTableComponent
         ILocator table)
     {
         return (await table
-                .Locator("thead tr th")
+                .Locator(Constants.TableHeadersSelector)
                 .AllInnerTextsAsync())
             .Select(x => x.Trim())
             .ToList();
@@ -41,7 +40,7 @@ public class HomeMatchesTableComponent
     public async Task<IReadOnlyList<ILocator>> GetRowsAsync(
         ILocator table)
     {
-        var rows = table.Locator("tbody tr");
+        var rows = table.Locator(Constants.TableRowsSelector);
         var count = await rows.CountAsync();
 
         return Enumerable

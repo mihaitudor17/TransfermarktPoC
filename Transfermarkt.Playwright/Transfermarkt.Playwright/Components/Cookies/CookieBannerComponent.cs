@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Cookies;
 
@@ -13,28 +14,34 @@ public class CookieBannerComponent
 
     public async Task AcceptAsync()
     {
-        var deadline = DateTime.UtcNow.AddSeconds(10);
+        var timeout = Constants.CookieBannerTimeoutMilliseconds;
+        var acceptButton = _page
+            .FrameLocator(Constants.CookiePrivacyFrameSelector)
+            .Locator(Constants.CookieAcceptButtonSelector);
 
-        while (DateTime.UtcNow < deadline)
+        while (true)
         {
-            var cookieFrame = _page.Frames
-                .FirstOrDefault(frame =>
-                    frame.Url.Contains("privacy-mgmt.com/index.html"));
-
-            if (cookieFrame != null)
+            try
             {
-                var acceptButton = cookieFrame.Locator(
-                    "#notice button.message-component.accept-all");
-
-                if (await acceptButton.IsVisibleAsync())
+                await acceptButton.WaitForAsync(new LocatorWaitForOptions
                 {
-                    await acceptButton.ClickAsync();
-                    await _page.WaitForTimeoutAsync(500);
-                    return;
-                }
-            }
+                    State = WaitForSelectorState.Visible,
+                    Timeout = timeout
+                });
 
-            await _page.WaitForTimeoutAsync(250);
+                await acceptButton.ClickAsync();
+                await acceptButton.WaitForAsync(new LocatorWaitForOptions
+                {
+                    State = WaitForSelectorState.Hidden,
+                    Timeout = timeout
+                });
+
+                timeout = Constants.CookieBannerRepeatQuietPeriodMilliseconds;
+            }
+            catch (TimeoutException)
+            {
+                return;
+            }
         }
     }
 }

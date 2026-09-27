@@ -1,13 +1,11 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.TopBar;
 
 public class TopBarComponent
 {
     private readonly IPage _page;
-
-    private const string LinkSelector = "a.main-navbar__lp-link";
-    private const string ActiveLinkSelector = "a.main-navbar__lp-link.active";
 
     public TopBarComponent(IPage page)
     {
@@ -19,7 +17,7 @@ public class TopBarComponent
         var expectedText = destination.GetDisplayText();
 
         await _page
-            .Locator(LinkSelector)
+            .Locator(Constants.TopBarLinkSelector)
             .Filter(new LocatorFilterOptions
             {
                 HasTextString = expectedText
@@ -30,7 +28,7 @@ public class TopBarComponent
     public async Task<string> GetActiveDestinationTextAsync()
     {
         return (await _page
-                .Locator(ActiveLinkSelector)
+                .Locator(Constants.ActiveTopBarLinkSelector)
                 .InnerTextAsync())
             .Trim();
     }

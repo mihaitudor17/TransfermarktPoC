@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Login;
 
@@ -6,34 +7,25 @@ public class LoginComponent
 {
     private readonly IPage _page;
 
-    private const string LoginButtonSelector =
-        "button[title='Log in']";
-
-    private const string GuestDropdownSelector =
-        "div[class*='dropdown user-guest']";
-
-    private const string CancelButtonSelector =
-        ".cancel-button";
-
     public LoginComponent(IPage page)
     {
         _page = page;
     }
 
     private ILocator GuestDropdown =>
-        _page.Locator(GuestDropdownSelector);
+        _page.Locator(Constants.GuestDropdownSelector);
 
     public async Task OpenAsync()
     {
         await _page
-            .Locator(LoginButtonSelector)
+            .Locator(Constants.LoginButtonSelector)
             .ClickAsync();
     }
 
     public async Task CloseAsync()
     {
         await GuestDropdown
-            .Locator(CancelButtonSelector)
+            .Locator(Constants.CancelButtonSelector)
             .ClickAsync();
 
         await GuestDropdown.WaitForAsync(

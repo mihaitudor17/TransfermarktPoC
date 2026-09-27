@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Fixtures;
 
@@ -22,7 +23,7 @@ public class PlaywrightFixture : IAsyncDisposable
         Context = await Browser.NewContextAsync(
             new BrowserNewContextOptions
             {
-                BaseURL = "https://www.transfermarkt.com"
+                BaseURL = Constants.TransfermarktBaseUrl
             });
 
         Page = await Context.NewPageAsync();

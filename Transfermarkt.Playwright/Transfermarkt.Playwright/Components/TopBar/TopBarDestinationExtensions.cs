@@ -1,5 +1,7 @@
 namespace Transfermarkt.Playwright.Components.TopBar;
 
+using Transfermarkt.Playwright.Helpers;
+
 public static class TopBarDestinationExtensions
 {
     public static string GetDisplayText(
@@ -7,18 +9,18 @@ public static class TopBarDestinationExtensions
     {
         return destination switch
         {
-            TopBarDestination.Discover => "DISCOVER",
-            TopBarDestination.TransfersAndRumours => "TRANSFERS & RUMOURS",
-            TopBarDestination.MarketValues => "MARKET VALUES",
-            TopBarDestination.Competitions => "COMPETITIONS",
-            TopBarDestination.Statistics => "STATISTICS",
-            TopBarDestination.Forum => "FORUM",
-            TopBarDestination.Gaming => "GAMING",
+            TopBarDestination.Discover => Constants.TopBarDiscoverText,
+            TopBarDestination.TransfersAndRumours => Constants.TopBarTransfersAndRumoursText,
+            TopBarDestination.MarketValues => Constants.TopBarMarketValuesText,
+            TopBarDestination.Competitions => Constants.TopBarCompetitionsText,
+            TopBarDestination.Statistics => Constants.TopBarStatisticsText,
+            TopBarDestination.Forum => Constants.TopBarForumText,
+            TopBarDestination.Gaming => Constants.TopBarGamingText,
 
             _ => throw new ArgumentOutOfRangeException(
                 nameof(destination),
                 destination,
-                "Unsupported top bar destination.")
+                Constants.UnsupportedTopBarDestinationMessage)
         };
     }
 }

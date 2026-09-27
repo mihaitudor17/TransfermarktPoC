@@ -33,14 +33,19 @@ public abstract class BaseTest
     [TearDown]
     public async Task TearDown()
     {
-        Assert.That(
-            HttpErrors.Errors,
-            Is.Empty,
-            "HTTP 5xx responses were detected:\n" +
-            string.Join(
-                "\n",
-                HttpErrors.Errors.Select(e => $"{e.Status} - {e.Url}")));
-
-        await Fixture.DisposeAsync();
+        try
+        {
+            Assert.That(
+                HttpErrors.Errors,
+                Is.Empty,
+                "HTTP 5xx responses were detected:\n" +
+                string.Join(
+                    "\n",
+                    HttpErrors.Errors.Select(e => $"{e.Status} - {e.Url}")));
+        }
+        finally
+        {
+            await Fixture.DisposeAsync();
+        }
     }
 }

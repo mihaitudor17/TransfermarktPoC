@@ -1,14 +1,11 @@
 using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Components.Search;
 
 public class SearchComponent
 {
     private readonly IPage _page;
-
-    private const string SearchFormSelector = "#schnellsuche";
-    private const string SearchInputSelector = "#schnellsuche input[type='text']";
-    private const string SearchButtonSelector = "#schnellsuche button[type='submit']";
 
     public SearchComponent(IPage page)
     {
@@ -18,11 +15,11 @@ public class SearchComponent
     public async Task SearchAsync(string searchTerm)
     {
         await _page
-            .Locator(SearchInputSelector)
+            .Locator(Constants.SearchInputSelector)
             .FillAsync(searchTerm);
 
         await _page
-            .Locator(SearchButtonSelector)
+            .Locator(Constants.SearchButtonSelector)
             .ClickAsync();
     }
 }
