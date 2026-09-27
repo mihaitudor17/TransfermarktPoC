@@ -1,0 +1,73 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Transfermarkt.Playwright -> /Users/mihai/Documents/GitHub/TransfermarktPoC/Transfermarkt.Playwright/Transfermarkt.Playwright/bin/Debug/net8.0/Transfermarkt.Playwright.dll
+Test run for /Users/mihai/Documents/GitHub/TransfermarktPoC/Transfermarkt.Playwright/Transfermarkt.Playwright/bin/Debug/net8.0/Transfermarkt.Playwright.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (arm64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 4.5.0.0: Test execution started
+Running all tests in /Users/mihai/Documents/GitHub/TransfermarktPoC/Transfermarkt.Playwright/Transfermarkt.Playwright/bin/Debug/net8.0/Transfermarkt.Playwright.dll
+   NUnit3TestExecutor discovered 56 of 56 NUnit test cases using Current Discovery mode, Non-Explicit run
+  Passed HomePage_GamesTables_ShouldHaveAwayTeamImages [4 s]
+  Passed HomePage_GamesTables_ShouldHaveAwayTeams [3 s]
+  Passed HomePage_GamesTables_ShouldHaveHomeTeamImages [3 s]
+  Passed HomePage_GamesTables_ShouldHaveHomeTeams [3 s]
+  Passed HomePage_GamesTables_ShouldHaveRows [3 s]
+  Passed HomePage_GamesTables_ShouldHaveValidDates [3 s]
+  Passed HomePage_GamesTables_ShouldHaveValidHeaders [3 s]
+  Passed HomePage_GamesTables_ShouldHaveValidMatchTimes [3 s]
+  Passed Login_ShouldAllowEnteringCredentials [3 s]
+  Passed Login_ShouldAllowUncheckingRememberMe [4 s]
+  Passed Login_ShouldBeDisabledWhenPasswordIsEmpty [4 s]
+  Passed Login_ShouldBeDisabledWhenUsernameAndPasswordAreEmpty [3 s]
+  Passed Login_ShouldBeDisabledWhenUsernameIsEmpty [4 s]
+  Passed Login_ShouldCloseGuestDropdown [5 s]
+  Passed Login_ShouldOpenForgotLoginDetailsPage [4 s]
+  Passed Login_ShouldOpenGuestDropdown [3 s]
+  Passed Login_ShouldRememberUserSelection [3 s]
+  Passed Login_ShouldRemoveUsernameErrorWhenAtIsRemoved [4 s]
+  Passed Login_ShouldShowUsernameErrorWhenUsernameContainsAt [4 s]
+  Passed Login_ShouldTogglePasswordVisibility [3 s]
+  Passed Registration_ShouldDisplayCreateAccountTitle [3 s]
+  Passed Registration_ShouldOpenRegistrationPage [5 s]
+  Passed Registration_ShouldOpenWhyRegisterPage [4 s]
+  Passed Search_ShouldFindAndOpenClub("Manchester United") [3 s]
+  Passed Search_ShouldFindAndOpenClub("Liverpool FC") [4 s]
+  Passed Search_ShouldFindAndOpenClub("Real Madrid") [4 s]
+  Passed Search_ShouldFindAndOpenClub("FC Barcelona") [4 s]
+  Passed Search_ShouldFindAndOpenPlayer("Ianis Hagi") [4 s]
+  Passed Search_ShouldFindAndOpenPlayer("Erling Haaland") [5 s]
+  Passed Search_ShouldFindAndOpenPlayer("Kylian Mbappé") [5 s]
+  Passed Search_ShouldFindAndOpenPlayer("Lionel Messi") [4 s]
+  Passed TopBar_ShouldNavigateToDestination(Discover,"/") [3 s]
+  Passed TopBar_ShouldNavigateToDestination(TransfersAndRumours,"/navigation/transfersundgeruechte") [3 s]
+  Passed TopBar_ShouldNavigateToDestination(MarketValues,"/navigation/marktwerte") [3 s]
+  Passed TopBar_ShouldNavigateToDestination(Competitions,"/navigation/wettbewerbe") [3 s]
+  Passed TopBar_ShouldNavigateToDestination(Statistics,"/navigation/statistiken") [3 s]
+  Passed TopBar_ShouldNavigateToDestination(Forum,"/navigation/community") [3 s]
+  Passed TopBar_ShouldNavigateToDestination(Gaming,"/navigation/gaming") [3 s]
+  Passed Endpoint_ShouldReturnSuccessfulResponse("/") [347 ms]
+  Passed Endpoint_ShouldReturnSuccessfulResponse("/premier-league/startseite/wettbewerb/GB1") [401 ms]
+  Passed Endpoint_ShouldReturnSuccessfulResponse("/premier-league/tabelle/wettbewerb/GB1") [443 ms]
+  Passed PremierLeagueTable_ShouldContainExpectedTeams [577 ms]
+  Passed PremierLeagueTable_ShouldReturnValidTablePage [361 ms]
+  Passed Search_ShouldInterceptSearchRequest("Liverpool") [4 s]
+  Passed Search_ShouldInterceptSearchRequest("Manchester United") [3 s]
+  Passed Search_ShouldInterceptSearchRequest("Real Madrid") [3 s]
+  Passed GetDisplayText_ShouldMatchDestinationCount [1 ms]
+  Passed GetDisplayText_ShouldReturnExpectedText(Discover,"DISCOVER") [< 1 ms]
+  Passed GetDisplayText_ShouldReturnExpectedText(TransfersAndRumours,"TRANSFERS & RUMOURS") [< 1 ms]
+  Passed GetDisplayText_ShouldReturnExpectedText(MarketValues,"MARKET VALUES") [< 1 ms]
+  Passed GetDisplayText_ShouldReturnExpectedText(Competitions,"COMPETITIONS") [< 1 ms]
+  Passed GetDisplayText_ShouldReturnExpectedText(Statistics,"STATISTICS") [< 1 ms]
+  Passed GetDisplayText_ShouldReturnExpectedText(Forum,"FORUM") [< 1 ms]
+  Passed GetDisplayText_ShouldReturnExpectedText(Gaming,"GAMING") [< 1 ms]
+  Passed GetDisplayText_ShouldReturnNonEmptyTextForEveryDestination [1 ms]
+NUnit Adapter 4.5.0.0: Test execution complete
+  Passed GetDisplayText_ShouldReturnUniqueTextForEveryDestination [2 ms]
+
+Test Run Successful.
+Total tests: 56
+     Passed: 56
+ Total time: 2.8169 Minutes
