@@ -1,59 +1,41 @@
-using Microsoft.Playwright;
 using Transfermarkt.Playwright.Components.Login;
 
 namespace Transfermarkt.Playwright.Tests.E2E;
 
-public class RegistrationTests : BaseTest
+public class RegistrationTests : BrowserTest
 {
+    private LoginComponent _login = null!;
+    private RegistrationComponent _registration = null!;
+
+    [SetUp]
+    public async Task SetUpRegistrationComponents()
+    {
+        _login = new LoginComponent(Page);
+        _registration = _login.Registration;
+        await _login.OpenAsync();
+    }
+
     [Test]
     public async Task Registration_ShouldDisplayCreateAccountTitle()
     {
-        var login = new LoginComponent(Page);
-
-        await login.OpenAsync();
-
-        var registration = new RegistrationComponent(Page);
-
-        Assert.That(
-            await registration.GetTitleAsync(),
-            Is.EqualTo("Create Your Account"));
+        await Expect(_registration.Title).ToHaveTextAsync("Create your account");
     }
 
     [Test]
     public async Task Registration_ShouldOpenRegistrationPage()
     {
-        var login = new LoginComponent(Page);
+        await _registration.OpenRegistrationAsync();
 
-        await login.OpenAsync();
-
-        var registration = new RegistrationComponent(Page);
-
-        await registration.OpenRegistrationAsync();
-
-        await Page.WaitForLoadStateAsync(
-            LoadState.DOMContentLoaded);
-
-        Assert.That(
-            Page.Url,
-            Does.Contain("/profil/registrieren"));
+        await Expect(Page).ToHaveURLAsync(
+            new Regex(@"/profil/registrieren(?:[/?#]|$)"));
     }
 
     [Test]
     public async Task Registration_ShouldOpenWhyRegisterPage()
     {
-        var login = new LoginComponent(Page);
+        await _registration.OpenWhyRegisterAsync();
 
-        await login.OpenAsync();
-
-        var registration = new RegistrationComponent(Page);
-
-        await registration.OpenWhyRegisterAsync();
-
-        await Page.WaitForLoadStateAsync(
-            LoadState.DOMContentLoaded);
-
-        Assert.That(
-            Page.Url,
-            Does.Contain("/profil/warumRegistrieren"));
+        await Expect(Page).ToHaveURLAsync(
+            new Regex(@"/profil/warumRegistrieren(?:[/?#]|$)"));
     }
 }

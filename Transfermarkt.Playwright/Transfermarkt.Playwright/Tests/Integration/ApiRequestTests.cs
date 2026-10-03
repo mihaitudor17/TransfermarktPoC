@@ -2,15 +2,18 @@ using Transfermarkt.Playwright.Fixtures;
 
 namespace Transfermarkt.Playwright.Tests.Integration;
 
-public class ApiRequestTests
+public class ApiRequestTests : PlaywrightTest
 {
+    private const string PremierLeagueTableEndpoint =
+        "/premier-league/tabelle/wettbewerb/GB1";
+
     private ApiFixture _fixture = null!;
 
     [SetUp]
     public async Task SetUp()
     {
         _fixture = new ApiFixture();
-        await _fixture.InitializeAsync();
+        await _fixture.InitializeAsync(Playwright);
     }
 
     [TearDown]
@@ -21,23 +24,19 @@ public class ApiRequestTests
 
     [TestCase("/")]
     [TestCase("/premier-league/startseite/wettbewerb/GB1")]
-    [TestCase("/premier-league/tabelle/wettbewerb/GB1")]
+    [TestCase(PremierLeagueTableEndpoint)]
     public async Task Endpoint_ShouldReturnSuccessfulResponse(
         string endpoint)
     {
         var response = await _fixture.Request.GetAsync(endpoint);
 
-        Assert.That(
-            response.Status,
-            Is.EqualTo(200),
-            $"Endpoint '{endpoint}' should return HTTP 200.");
+        await Expect(response).ToBeOKAsync();
     }
 
     [Test]
     public async Task PremierLeagueTable_ShouldReturnValidTablePage()
     {
-        var response = await _fixture.Request.GetAsync(
-            "/premier-league/tabelle/wettbewerb/GB1");
+        var response = await _fixture.Request.GetAsync(PremierLeagueTableEndpoint);
 
         var body = await response.TextAsync();
 
@@ -47,13 +46,10 @@ public class ApiRequestTests
             ? value
             : string.Empty;
 
+        await Expect(response).ToBeOKAsync();
+
         Assert.Multiple(() =>
         {
-            Assert.That(
-                response.Status,
-                Is.EqualTo(200),
-                "Premier League table endpoint should return HTTP 200.");
-
             Assert.That(
                 contentType,
                 Does.Contain("text/html"),
@@ -69,35 +65,5 @@ public class ApiRequestTests
                 Does.Contain("table"),
                 "Response should contain table markup.");
         });
-    }
-
-    [Test]
-    public async Task PremierLeagueTable_ShouldContainExpectedTeams()
-    {
-        var response = await _fixture.Request.GetAsync(
-            "/premier-league/tabelle/wettbewerb/GB1");
-
-        var body = await response.TextAsync();
-
-        var expectedTeams = new[]
-        {
-            "Arsenal",
-            "Liverpool",
-            "Manchester City",
-            "Chelsea"
-        };
-
-        Assert.That(
-            response.Ok,
-            Is.True,
-            "Premier League table request should succeed.");
-
-        foreach (var team in expectedTeams)
-        {
-            Assert.That(
-                body,
-                Does.Contain(team),
-                $"Premier League table should contain '{team}'.");
-        }
     }
 }

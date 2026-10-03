@@ -2,17 +2,14 @@ using Microsoft.Playwright;
 using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Fixtures;
-    
+
 public class ApiFixture : IAsyncDisposable
 {
-    public IPlaywright Playwright { get; private set; } = null!;
     public IAPIRequestContext Request { get; private set; } = null!;
 
-    public async Task InitializeAsync()
+    public async Task InitializeAsync(IPlaywright playwright)
     {
-        Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-
-        Request = await Playwright.APIRequest.NewContextAsync(
+        Request = await playwright.APIRequest.NewContextAsync(
             new APIRequestNewContextOptions
             {
                 BaseURL = Constants.TransfermarktBaseUrl
@@ -22,6 +19,5 @@ public class ApiFixture : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await Request.DisposeAsync();
-        Playwright.Dispose();
     }
 }

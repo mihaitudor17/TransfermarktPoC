@@ -2,7 +2,7 @@ using Transfermarkt.Playwright.Components.TopBar;
 
 namespace Transfermarkt.Playwright.Tests.E2E;
 
-public class TopBarTests : BaseTest
+public class TopBarTests : BrowserTest
 {
     [TestCase(TopBarDestination.Discover, "/")]
     [TestCase(TopBarDestination.TransfersAndRumours, "/navigation/transfersundgeruechte")]
@@ -15,12 +15,11 @@ public class TopBarTests : BaseTest
         TopBarDestination destination,
         string expectedPath)
     {
-        await Page.GotoAsync("/");
-
         var topBar = new TopBarComponent(Page);
 
         await topBar.NavigateToAsync(destination);
 
-        Assert.That(new Uri(Page.Url).AbsolutePath, Is.EqualTo(expectedPath));
+        await Expect(Page).ToHaveURLAsync(
+            new Regex($"^https?://[^/]+{Regex.Escape(expectedPath)}(?:[?#].*)?$"));
     }
 }

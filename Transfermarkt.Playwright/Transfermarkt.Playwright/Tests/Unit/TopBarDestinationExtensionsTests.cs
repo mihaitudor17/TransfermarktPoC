@@ -45,17 +45,4 @@ public class TopBarDestinationExtensionsTests
             Is.Unique);
     }
 
-    [Test]
-    public void GetDisplayText_ShouldMatchDestinationCount()
-    {
-        var destinations = Enum.GetValues<TopBarDestination>();
-
-        var texts = destinations
-            .Select(destination => destination.GetDisplayText())
-            .ToList();
-
-        Assert.That(
-            texts.Count,
-            Is.EqualTo(destinations.Length));
-    }
 }

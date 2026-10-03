@@ -12,20 +12,6 @@ public class ProfileComponent
         _page = page;
     }
 
-    public async Task<string> GetTitleAsync()
-    {
-        return (await _page
-                .Locator(Constants.ProfileTitleSelector)
-                .InnerTextAsync())
-            .Trim();
-    }
+    public ILocator Title => _page.Locator(Constants.ProfileTitleSelector).First;
 
-    public async Task<bool> ContainsNameAsync(string name)
-    {
-        var title = await GetTitleAsync();
-
-        return title.Contains(
-            name,
-            StringComparison.OrdinalIgnoreCase);
-    }
 }

@@ -1,10 +1,11 @@
 using Transfermarkt.Playwright.Components.Profiles;
 using Transfermarkt.Playwright.Components.Search;
 using Transfermarkt.Playwright.Components.Tables;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Tests.E2E;
 
-public class SearchTests : BaseTest
+public class SearchTests : BrowserTest
 {
     [TestCase("Manchester United")]
     [TestCase("Liverpool FC")]
@@ -12,10 +13,6 @@ public class SearchTests : BaseTest
     [TestCase("FC Barcelona")]
     public async Task Search_ShouldFindAndOpenClub(string searchTerm)
     {
-        var search = new SearchComponent(Page);
-
-        var profile = new ProfileComponent(Page);
-
         var expectedHeaders = new[]
         {
             "Club",
@@ -27,31 +24,11 @@ public class SearchTests : BaseTest
             "forum"
         };
 
-        await search.SearchAsync(searchTerm);
-        
-        var resultsTable = new SearchResultsTableComponent(
-            Page,
-            "clubs");
-
-        var headers = await resultsTable.GetHeadersAsync();
-
-        Assert.That(headers, Is.EqualTo(expectedHeaders));
-
-        var names = await resultsTable.GetNamesAsync(2);
-
-        Assert.That(
-            names,
-            Does.Contain(searchTerm),
-            $"Search results should contain '{searchTerm}'.");
-
-        await resultsTable.OpenByNameAsync(
+        await SearchAndOpenProfileAsync(
             searchTerm,
-            2);
-
-        Assert.That(
-            await profile.ContainsNameAsync(searchTerm),
-            Is.True,
-            $"Profile header should contain '{searchTerm}'.");
+            Constants.ClubsResultType,
+            2,
+            expectedHeaders);
     }
 
     [TestCase("Ianis Hagi")]
@@ -60,14 +37,6 @@ public class SearchTests : BaseTest
     [TestCase("Lionel Messi")]
     public async Task Search_ShouldFindAndOpenPlayer(string searchTerm)
     {
-        var search = new SearchComponent(Page);
-
-        var resultsTable = new SearchResultsTableComponent(
-            Page,
-            "players");
-
-        var profile = new ProfileComponent(Page);
-
         var expectedHeaders = new[]
         {
             "Position",
@@ -78,26 +47,30 @@ public class SearchTests : BaseTest
             "Agents"
         };
 
+        await SearchAndOpenProfileAsync(
+            searchTerm,
+            Constants.PlayersResultType,
+            1,
+            expectedHeaders);
+    }
+
+    private async Task SearchAndOpenProfileAsync(
+        string searchTerm,
+        string resultType,
+        int nameColumnIndex,
+        string[] expectedHeaders)
+    {
+        var search = new SearchComponent(Page);
         await search.SearchAsync(searchTerm);
 
-        var headers = await resultsTable.GetHeadersAsync();
+        var resultsTable = new SearchResultsTableComponent(Page, resultType);
+        await Expect(resultsTable.Headers).ToHaveTextAsync(expectedHeaders);
+        await Expect(resultsTable.NameLink(searchTerm, nameColumnIndex))
+            .ToBeVisibleAsync();
 
-        Assert.That(headers, Is.EqualTo(expectedHeaders));
+        await resultsTable.OpenByNameAsync(searchTerm, nameColumnIndex);
 
-        var names = await resultsTable.GetNamesAsync(1);
-
-        Assert.That(
-            names,
-            Does.Contain(searchTerm),
-            $"Search results should contain '{searchTerm}'.");
-
-        await resultsTable.OpenByNameAsync(
-            searchTerm,
-            1);
-
-        Assert.That(
-            await profile.ContainsNameAsync(searchTerm),
-            Is.True,
-            $"Profile header should contain '{searchTerm}'.");
+        var profile = new ProfileComponent(Page);
+        await Expect(profile.Title).ToContainTextAsync(searchTerm);
     }
 }

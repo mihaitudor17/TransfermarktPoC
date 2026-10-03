@@ -17,13 +17,8 @@ public class RegistrationComponent
             .Locator(Constants.GuestDropdownSelector)
             .Locator(Constants.RegisterSectionSelector);
 
-    public async Task<string> GetTitleAsync()
-    {
-        return (await RegisterSection
-                .Locator(Constants.RegisterTitleSelector)
-                .InnerTextAsync())
-            .Trim();
-    }
+    public ILocator Title =>
+        RegisterSection.Locator(Constants.RegisterTitleSelector);
 
     public async Task OpenRegistrationAsync()
     {

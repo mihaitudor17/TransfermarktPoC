@@ -36,50 +36,19 @@ public class SearchResultsTableComponent
             .First;
     }
 
-    public async Task<IReadOnlyList<string>> GetHeadersAsync()
-    {
-        var table = GetTable();
+    public ILocator Headers =>
+        GetTable().Locator(Constants.SearchResultHeadersSelector);
 
-        await table.WaitForAsync(
-            new LocatorWaitForOptions
-            {
-                State = WaitForSelectorState.Visible,
-                Timeout = 10000
-            });
-
-        return await table
-            .Locator(Constants.SearchResultHeadersSelector)
-            .AllInnerTextsAsync();
-    }
-
-    public async Task<IReadOnlyList<string>> GetNamesAsync(
-        int columnIndex)
-    {
-        var table = GetTable();
-
-        var links = table.Locator(
-            $"tbody tr td:nth-child({columnIndex}) a");
-
-        return (await Task.WhenAll(
-                (await links.AllAsync())
-                .Select(link =>
-                    link.GetAttributeAsync("title"))))
-            .Where(title => !string.IsNullOrEmpty(title))
-            .Select(title => title!)
-            .ToList();
-    }
+    public ILocator NameLink(string name, int columnIndex) =>
+        GetTable()
+            .Locator($"tbody tr td:nth-child({columnIndex}) a")
+            .GetByText(name)
+            .First;
 
     public async Task OpenByNameAsync(
         string name,
         int columnIndex)
     {
-        var table = GetTable();
-
-        var link = table
-            .Locator(
-                $"tbody tr td:nth-child({columnIndex}) a[title='{name}']")
-            .First;
-
-        await link.ClickAsync();
+        await NameLink(name, columnIndex).ClickAsync();
     }
 }

@@ -1,215 +1,152 @@
-using Microsoft.Playwright;
 using Transfermarkt.Playwright.Components.Login;
 
 namespace Transfermarkt.Playwright.Tests.E2E;
 
-public class LoginTests : BaseTest
+public class LoginTests : BrowserTest
 {
+    private const string TestUsername = "test-user";
+    private const string TestPassword = "test-password";
+
+    private LoginComponent _login = null!;
+    private LoginForm _form = null!;
+
+    [SetUp]
+    public void SetUpLoginComponents()
+    {
+        _login = new LoginComponent(Page);
+        _form = _login.Form;
+    }
+
     [Test]
     public async Task Login_ShouldOpenGuestDropdown()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
-
-        Assert.That(
-            await login.IsOpenAsync(),
-            Is.True,
-            "Login dropdown should be visible.");
+        await Expect(_login.GuestDropdown).ToBeVisibleAsync();
     }
 
     [Test]
     public async Task Login_ShouldCloseGuestDropdown()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
+        await _login.CloseAsync();
 
-        await login.OpenAsync();
-        await login.CloseAsync();
-
-        Assert.That(
-            await login.IsOpenAsync(),
-            Is.False,
-            "Login dropdown should be closed.");
+        await Expect(_login.GuestDropdown).ToBeHiddenAsync();
     }
 
     [Test]
     public async Task Login_ShouldAllowEnteringCredentials()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.FillUsernameAsync(TestUsername);
+        await _form.FillPasswordAsync(TestPassword);
 
-        await login.Form.FillUsernameAsync("test-user");
-        await login.Form.FillPasswordAsync("test-password");
-
-        Assert.That(
-            await Page.Locator("#username").InputValueAsync(),
-            Is.EqualTo("test-user"));
-
-        Assert.That(
-            await Page.Locator("#password").InputValueAsync(),
-            Is.EqualTo("test-password"));
+        await Expect(_form.UsernameInput).ToHaveValueAsync(TestUsername);
+        await Expect(_form.PasswordInput).ToHaveValueAsync(TestPassword);
     }
 
     [Test]
     public async Task Login_ShouldRememberUserSelection()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.SetRememberMeAsync(true);
 
-        await login.Form.SetRememberMeAsync(true);
-
-        Assert.That(
-            await login.Form.IsRememberMeCheckedAsync(),
-            Is.True);
+        await Expect(_form.RememberMeCheckbox).ToBeCheckedAsync();
     }
 
     [Test]
     public async Task Login_ShouldAllowUncheckingRememberMe()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.SetRememberMeAsync(true);
+        await _form.SetRememberMeAsync(false);
 
-        await login.Form.SetRememberMeAsync(true);
-        await login.Form.SetRememberMeAsync(false);
-
-        Assert.That(
-            await login.Form.IsRememberMeCheckedAsync(),
-            Is.False);
+        await Expect(_form.RememberMeCheckbox).Not.ToBeCheckedAsync();
     }
 
     [Test]
     public async Task Login_ShouldOpenForgotLoginDetailsPage()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.OpenForgotLoginDetailsAsync();
 
-        await login.Form.OpenForgotLoginDetailsAsync();
-
-        await Page.WaitForLoadStateAsync(
-            LoadState.DOMContentLoaded);
-
-        Assert.That(
-            Page.Url,
-            Does.Contain("/profil/loginDetails"));
+        await Expect(Page).ToHaveURLAsync(
+            new Regex(@"/profil/loginDetails(?:[/?#]|$)"));
     }
-    
+
     [Test]
     public async Task Login_ShouldTogglePasswordVisibility()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.FillPasswordAsync(TestPassword);
 
-        await login.Form.FillPasswordAsync("test-password");
+        await Expect(_form.PasswordInput).ToHaveAttributeAsync("type", "password");
 
-        Assert.That(
-            await login.Form.GetPasswordInputTypeAsync(),
-            Is.EqualTo("password"));
+        await _form.TogglePasswordVisibilityAsync();
 
-        await login.Form.TogglePasswordVisibilityAsync();
+        await Expect(_form.PasswordInput).ToHaveAttributeAsync("type", "text");
 
-        Assert.That(
-            await login.Form.GetPasswordInputTypeAsync(),
-            Is.EqualTo("text"));
+        await _form.TogglePasswordVisibilityAsync();
 
-        await login.Form.TogglePasswordVisibilityAsync();
-
-        Assert.That(
-            await login.Form.GetPasswordInputTypeAsync(),
-            Is.EqualTo("password"));
+        await Expect(_form.PasswordInput).ToHaveAttributeAsync("type", "password");
     }
-    
+
     [Test]
     public async Task Login_ShouldBeDisabledWhenUsernameIsEmpty()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.FillPasswordAsync(TestPassword);
 
-        await login.Form.FillPasswordAsync("test-password");
-
-        Assert.That(
-            await login.Form.IsLoginButtonEnabledAsync(),
-            Is.False,
-            "Login button should be disabled when username is empty.");
+        await Expect(_form.LoginButton).ToBeDisabledAsync();
     }
 
     [Test]
     public async Task Login_ShouldBeDisabledWhenPasswordIsEmpty()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.FillUsernameAsync(TestUsername);
 
-        await login.Form.FillUsernameAsync("test-user");
-
-        Assert.That(
-            await login.Form.IsLoginButtonEnabledAsync(),
-            Is.False,
-            "Login button should be disabled when password is empty.");
+        await Expect(_form.LoginButton).ToBeDisabledAsync();
     }
 
     [Test]
     public async Task Login_ShouldBeDisabledWhenUsernameAndPasswordAreEmpty()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
-
-        Assert.That(
-            await login.Form.IsLoginButtonEnabledAsync(),
-            Is.False,
-            "Login button should be disabled when username and password are empty.");
+        await Expect(_form.LoginButton).ToBeDisabledAsync();
     }
 
     [Test]
     public async Task Login_ShouldShowUsernameErrorWhenUsernameContainsAt()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.FillUsernameAsync("test@example.com");
 
-        await login.Form.FillUsernameAsync("test@example.com");
-
-        await login.Form.WaitForUsernameErrorToAppearAsync();
-
-        Assert.That(
-            await login.Form.HasUsernameErrorAsync(),
-            Is.True,
-            "Username validation error should be displayed.");
-
-        Assert.That(
-            await login.Form.GetUsernameErrorAsync(),
-            Does.Contain(
-                "@ Zeichen ist im Benutzernamen nicht erlaubt"));
+        await Expect(_form.UsernameError).ToBeVisibleAsync();
+        await Expect(_form.UsernameError)
+            .ToContainTextAsync("@ Zeichen ist im Benutzernamen nicht erlaubt");
     }
 
     [Test]
     public async Task Login_ShouldRemoveUsernameErrorWhenAtIsRemoved()
     {
-        var login = new LoginComponent(Page);
+        await _login.OpenAsync();
 
-        await login.OpenAsync();
+        await _form.FillUsernameAsync("test@example.com");
 
-        await login.Form.FillUsernameAsync("test@example.com");
+        await Expect(_form.UsernameError).ToBeVisibleAsync();
 
-        await login.Form.WaitForUsernameErrorToAppearAsync();
+        await _form.FillUsernameAsync("testexample.com");
 
-        Assert.That(
-            await login.Form.HasUsernameErrorAsync(),
-            Is.True);
-
-        await login.Form.FillUsernameAsync("testexample.com");
-
-        await login.Form.WaitForUsernameErrorToDisappearAsync();
-
-        Assert.That(
-            await login.Form.HasUsernameErrorAsync(),
-            Is.False,
-            "Username validation error should disappear after removing '@'.");
+        await Expect(_form.UsernameError).ToBeHiddenAsync();
     }
 }

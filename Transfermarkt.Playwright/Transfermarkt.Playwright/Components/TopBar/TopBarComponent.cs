@@ -24,12 +24,4 @@ public class TopBarComponent
             })
             .ClickAsync();
     }
-
-    public async Task<string> GetActiveDestinationTextAsync()
-    {
-        return (await _page
-                .Locator(Constants.ActiveTopBarLinkSelector)
-                .InnerTextAsync())
-            .Trim();
-    }
 }
