@@ -1,25 +1,17 @@
-using Transfermarkt.Playwright.Fixtures;
+using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Tests.Integration;
 
-public class ApiRequestTests : PlaywrightTest
+public class ApiRequestTests : BrowserTest
 {
     private const string PremierLeagueTableEndpoint =
         "/premier-league/tabelle/wettbewerb/GB1";
 
-    private ApiFixture _fixture = null!;
-
-    [SetUp]
-    public async Task SetUp()
+    private Task<IAPIResponse> GetAsync(string endpoint)
     {
-        _fixture = new ApiFixture();
-        await _fixture.InitializeAsync(Playwright);
-    }
-
-    [TearDown]
-    public async Task TearDown()
-    {
-        await _fixture.DisposeAsync();
+        var url = new Uri(new Uri(Constants.TransfermarktBaseUrl), endpoint);
+        return Page.APIRequest.GetAsync(url.ToString());
     }
 
     [TestCase("/")]
@@ -28,7 +20,7 @@ public class ApiRequestTests : PlaywrightTest
     public async Task Endpoint_ShouldReturnSuccessfulResponse(
         string endpoint)
     {
-        var response = await _fixture.Request.GetAsync(endpoint);
+        var response = await GetAsync(endpoint);
 
         await Expect(response).ToBeOKAsync();
     }
@@ -36,10 +28,8 @@ public class ApiRequestTests : PlaywrightTest
     [Test]
     public async Task PremierLeagueTable_ShouldReturnValidTablePage()
     {
-        var response = await _fixture.Request.GetAsync(PremierLeagueTableEndpoint);
-
+        var response = await GetAsync(PremierLeagueTableEndpoint);
         var body = await response.TextAsync();
-
         var contentType = response.Headers.TryGetValue(
             "content-type",
             out var value)
@@ -48,22 +38,21 @@ public class ApiRequestTests : PlaywrightTest
 
         await Expect(response).ToBeOKAsync();
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(
-                contentType,
-                Does.Contain("text/html"),
-                "Response should be an HTML page.");
+        var responseDetails =
+            $"Status: {response.Status}; URL: {response.Url}; " +
+            $"Content-Type: {contentType}; Body length: {body.Length}.";
 
-            Assert.That(
-                body,
-                Does.Contain("Premier League"),
-                "Response should contain the Premier League.");
-
-            Assert.That(
-                body,
-                Does.Contain("table"),
-                "Response should contain table markup.");
-        });
+        Assert.That(
+            contentType,
+            Does.Contain("text/html"),
+            $"Response should be an HTML page. {responseDetails}");
+        Assert.That(
+            body,
+            Does.Contain("Premier League"),
+            $"Response should contain the Premier League. {responseDetails}");
+        Assert.That(
+            body,
+            Does.Contain("table"),
+            $"Response should contain table markup. {responseDetails}");
     }
 }
