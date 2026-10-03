@@ -1,6 +1,6 @@
-namespace Transfermarkt.Playwright.Components.TopBar;
-
 using Transfermarkt.Playwright.Helpers;
+
+namespace Transfermarkt.Playwright.Components.TopBar;
 
 public static class TopBarDestinationExtensions
 {

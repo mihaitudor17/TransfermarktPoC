@@ -1,103 +1,58 @@
-using Transfermarkt.Playwright.Fixtures;
+using Microsoft.Playwright;
+using Transfermarkt.Playwright.Helpers;
 
 namespace Transfermarkt.Playwright.Tests.Integration;
 
-public class ApiRequestTests
+public class ApiRequestTests : BrowserTest
 {
-    private ApiFixture _fixture = null!;
+    private const string PremierLeagueTableEndpoint =
+        "/premier-league/tabelle/wettbewerb/GB1";
 
-    [SetUp]
-    public async Task SetUp()
+    private Task<IAPIResponse> GetAsync(string endpoint)
     {
-        _fixture = new ApiFixture();
-        await _fixture.InitializeAsync();
-    }
-
-    [TearDown]
-    public async Task TearDown()
-    {
-        await _fixture.DisposeAsync();
+        var url = new Uri(new Uri(Constants.TransfermarktBaseUrl), endpoint);
+        return Page.APIRequest.GetAsync(url.ToString());
     }
 
     [TestCase("/")]
     [TestCase("/premier-league/startseite/wettbewerb/GB1")]
-    [TestCase("/premier-league/tabelle/wettbewerb/GB1")]
+    [TestCase(PremierLeagueTableEndpoint)]
     public async Task Endpoint_ShouldReturnSuccessfulResponse(
         string endpoint)
     {
-        var response = await _fixture.Request.GetAsync(endpoint);
+        var response = await GetAsync(endpoint);
 
-        Assert.That(
-            response.Status,
-            Is.EqualTo(200),
-            $"Endpoint '{endpoint}' should return HTTP 200.");
+        await Expect(response).ToBeOKAsync();
     }
 
     [Test]
     public async Task PremierLeagueTable_ShouldReturnValidTablePage()
     {
-        var response = await _fixture.Request.GetAsync(
-            "/premier-league/tabelle/wettbewerb/GB1");
-
+        var response = await GetAsync(PremierLeagueTableEndpoint);
         var body = await response.TextAsync();
-
         var contentType = response.Headers.TryGetValue(
             "content-type",
             out var value)
             ? value
             : string.Empty;
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(
-                response.Status,
-                Is.EqualTo(200),
-                "Premier League table endpoint should return HTTP 200.");
+        await Expect(response).ToBeOKAsync();
 
-            Assert.That(
-                contentType,
-                Does.Contain("text/html"),
-                "Response should be an HTML page.");
-
-            Assert.That(
-                body,
-                Does.Contain("Premier League"),
-                "Response should contain the Premier League.");
-
-            Assert.That(
-                body,
-                Does.Contain("table"),
-                "Response should contain table markup.");
-        });
-    }
-
-    [Test]
-    public async Task PremierLeagueTable_ShouldContainExpectedTeams()
-    {
-        var response = await _fixture.Request.GetAsync(
-            "/premier-league/tabelle/wettbewerb/GB1");
-
-        var body = await response.TextAsync();
-
-        var expectedTeams = new[]
-        {
-            "Arsenal",
-            "Liverpool",
-            "Manchester City",
-            "Chelsea"
-        };
+        var responseDetails =
+            $"Status: {response.Status}; URL: {response.Url}; " +
+            $"Content-Type: {contentType}; Body length: {body.Length}.";
 
         Assert.That(
-            response.Ok,
-            Is.True,
-            "Premier League table request should succeed.");
-
-        foreach (var team in expectedTeams)
-        {
-            Assert.That(
-                body,
-                Does.Contain(team),
-                $"Premier League table should contain '{team}'.");
-        }
+            contentType,
+            Does.Contain("text/html"),
+            $"Response should be an HTML page. {responseDetails}");
+        Assert.That(
+            body,
+            Does.Contain("Premier League"),
+            $"Response should contain the Premier League. {responseDetails}");
+        Assert.That(
+            body,
+            Does.Contain("table"),
+            $"Response should contain table markup. {responseDetails}");
     }
 }

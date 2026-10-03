@@ -15,32 +15,33 @@ public class HomeMatchesTableComponent
     public async Task<IReadOnlyList<ILocator>> GetTablesAsync()
     {
         var tables = _page.Locator(Constants.HomeMatchesTableSelector);
-        var count = await tables.CountAsync();
-
-        var result = new List<ILocator>();
-
-        for (var i = 0; i < count; i++)
+        await tables.First.WaitForAsync(new LocatorWaitForOptions
         {
-            result.Add(tables.Nth(i));
-        }
+            State = WaitForSelectorState.Visible
+        });
 
-        return result;
-    }
-
-    public async Task<IReadOnlyList<string>> GetHeadersAsync(
-        ILocator table)
-    {
-        return (await table
-                .Locator(Constants.TableHeadersSelector)
-                .AllInnerTextsAsync())
-            .Select(x => x.Trim())
+        var count = await tables.CountAsync();
+        return Enumerable
+            .Range(0, count)
+            .Select(tables.Nth)
             .ToList();
     }
+
+    public ILocator Headers(ILocator table) =>
+        table.Locator(Constants.TableHeadersSelector);
+
+    public ILocator Rows(ILocator table) =>
+        table.Locator(Constants.TableRowsSelector);
 
     public async Task<IReadOnlyList<ILocator>> GetRowsAsync(
         ILocator table)
     {
-        var rows = table.Locator(Constants.TableRowsSelector);
+        var rows = Rows(table);
+        await rows.First.WaitForAsync(new LocatorWaitForOptions
+        {
+            State = WaitForSelectorState.Visible
+        });
+
         var count = await rows.CountAsync();
 
         return Enumerable

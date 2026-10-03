@@ -2,7 +2,7 @@ using Transfermarkt.Playwright.Components.Search;
 
 namespace Transfermarkt.Playwright.Tests.Integration;
 
-public class NetworkTests : BaseTest
+public class NetworkTests : BrowserTest
 {
     [TestCase("Liverpool")]
     [TestCase("Manchester United")]

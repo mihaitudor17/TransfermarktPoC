@@ -22,9 +22,8 @@ public static class Constants
     public const string RegisterTitleSelector = "h3[class*='register-title']";
     public const string SignUpNowText = "Sign up now";
     public const string WhyRegisterText = "Why register?";
-    public const string ProfileTitleSelector = ".data-header > div:first-child h1";
+    public const string ProfileTitleSelector = "h1";
 
-    public const string SearchFormSelector = "#schnellsuche";
     public const string SearchInputSelector = "#schnellsuche input[type='text']";
     public const string SearchButtonSelector = "#schnellsuche button[type='submit']";
     public const string HomeMatchesTableSelector = "table.startseite";
@@ -33,15 +32,17 @@ public static class Constants
     public const string ErrorListSelector = "div[class*='error-list']";
     public const string PasswordToggleContainerSelector = "..";
     public const string PasswordToggleButtonSelector = "button";
-    public const string PasswordTypeAttribute = "type";
     public const string TopBarLinkSelector = "a.main-navbar__lp-link";
-    public const string ActiveTopBarLinkSelector = "a.main-navbar__lp-link.active";
     public const string SearchResultsTableSelector = ".responsive-table table.items";
     public const string SearchResultHeadersSelector = "thead tr th:not(:first-child)";
     public const string ClubsResultType = "clubs";
     public const string PlayersResultType = "players";
-    public const string ClubsResultBoxXPath = "//div[contains(@class,'box')][.//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'clubs')]]";
-    public const string PlayersResultBoxXPath = "//div[contains(@class,'box')][.//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'players')]]";
+    public const string ClubsResultBoxXPath =
+        "//div[contains(@class,'box')][.//h2[contains(translate(normalize-space(.)," +
+        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'clubs')]]";
+    public const string PlayersResultBoxXPath =
+        "//div[contains(@class,'box')][.//h2[contains(translate(normalize-space(.)," +
+        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'players')]]";
     public const string UnsupportedSearchResultTypeMessage = "Unsupported search result type: {0}";
     public const string UnsupportedTopBarDestinationMessage = "Unsupported top bar destination.";
     public const string TopBarDiscoverText = "DISCOVER";

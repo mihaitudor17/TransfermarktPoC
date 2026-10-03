@@ -14,7 +14,7 @@ public class CookieBannerComponent
 
     public async Task AcceptAsync()
     {
-        var timeout = Constants.CookieBannerTimeoutMilliseconds;
+        var visibilityTimeout = Constants.CookieBannerTimeoutMilliseconds;
         var acceptButton = _page
             .FrameLocator(Constants.CookiePrivacyFrameSelector)
             .Locator(Constants.CookieAcceptButtonSelector);
@@ -26,22 +26,22 @@ public class CookieBannerComponent
                 await acceptButton.WaitForAsync(new LocatorWaitForOptions
                 {
                     State = WaitForSelectorState.Visible,
-                    Timeout = timeout
+                    Timeout = visibilityTimeout
                 });
-
-                await acceptButton.ClickAsync();
-                await acceptButton.WaitForAsync(new LocatorWaitForOptions
-                {
-                    State = WaitForSelectorState.Hidden,
-                    Timeout = timeout
-                });
-
-                timeout = Constants.CookieBannerRepeatQuietPeriodMilliseconds;
             }
             catch (TimeoutException)
             {
                 return;
             }
+
+            await acceptButton.ClickAsync();
+            await acceptButton.WaitForAsync(new LocatorWaitForOptions
+            {
+                State = WaitForSelectorState.Hidden,
+                Timeout = Constants.CookieBannerTimeoutMilliseconds
+            });
+
+            visibilityTimeout = Constants.CookieBannerRepeatQuietPeriodMilliseconds;
         }
     }
 }

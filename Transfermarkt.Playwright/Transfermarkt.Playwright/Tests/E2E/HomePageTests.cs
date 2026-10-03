@@ -1,195 +1,127 @@
 using System.Globalization;
+using Microsoft.Playwright;
 using Transfermarkt.Playwright.Components.Tables;
 
 namespace Transfermarkt.Playwright.Tests.E2E;
 
-public class HomePageTests : BaseTest
+public class HomePageTests : BrowserTest
 {
+    private const int DateColumnIndex = 0;
+    private const int HomeTeamColumnIndex = 2;
+    private const int HomeTeamImageColumnIndex = 3;
+    private const int TimeColumnIndex = 4;
+    private const int AwayTeamImageColumnIndex = 5;
+    private const int AwayTeamColumnIndex = 6;
+
+    private HomeMatchesTableComponent _matches = null!;
+    private IReadOnlyList<ILocator> _tables = null!;
+
+    [SetUp]
+    public async Task SetUpHomeTables()
+    {
+        _matches = new HomeMatchesTableComponent(Page);
+        _tables = await _matches.GetTablesAsync();
+    }
+
+    private async Task<IReadOnlyList<ILocator>> GetAllRowsAsync()
+    {
+        var rows = new List<ILocator>();
+
+        foreach (var table in _tables)
+        {
+            rows.AddRange(await _matches.GetRowsAsync(table));
+        }
+
+        return rows;
+    }
+
+    private static ILocator Cell(ILocator row, int columnIndex) =>
+        row.Locator("td").Nth(columnIndex);
+
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveValidHeaders()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
-        Assert.That(
-            tables,
-            Is.Not.Empty,
-            "Home page should contain games tables.");
-
-        foreach (var table in tables)
+        foreach (var table in _tables)
         {
-            var headers = await matches.GetHeadersAsync(table);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(
-                    headers,
-                    Does.Contain("Date"),
-                    "Games table should contain a Date header.");
-
-                Assert.That(
-                    headers,
-                    Does.Contain("Home team"),
-                    "Games table should contain a Home team header.");
-
-                Assert.That(
-                    headers,
-                    Does.Contain("Away team"),
-                    "Games table should contain an Away team header.");
-            });
+            await Expect(_matches.Headers(table)).ToContainTextAsync(
+                new[] { "Date", "Home team", "Away team" });
         }
     }
 
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveRows()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
-
-        foreach (var table in tables)
+        foreach (var table in _tables)
         {
-            var rows = await matches.GetRowsAsync(table);
-
-            Assert.That(
-                rows,
-                Is.Not.Empty,
-                "Games table should contain match rows.");
+            await Expect(_matches.Rows(table).First).ToBeVisibleAsync();
         }
     }
 
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveValidDates()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
-
-        foreach (var table in tables)
+        foreach (var row in await GetAllRowsAsync())
         {
-            var rows = await matches.GetRowsAsync(table);
+            var date = (await Cell(row, DateColumnIndex).InnerTextAsync()).Trim();
 
-            foreach (var row in rows)
-            {
-                var date = (
-                    await row
-                        .Locator("td")
-                        .Nth(0)
-                        .InnerTextAsync())
-                    .Trim();
-                
-                if (string.IsNullOrEmpty(date))
-                    continue;
+            if (string.IsNullOrEmpty(date))
+                continue;
 
-                Assert.That(
-                    DateTime.TryParseExact(
-                        date,
-                        "ddd dd/MM/yyyy",
-                        CultureInfo.InvariantCulture,
-                        DateTimeStyles.None,
-                        out _),
-                    Is.True,
-                    $"Invalid match date: '{date}'.");
-            }
+            Assert.That(
+                DateTime.TryParseExact(
+                    date,
+                    "ddd dd/MM/yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out _),
+                Is.True,
+                $"Invalid match date: '{date}'.");
         }
     }
 
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveHomeTeams()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
-
-        foreach (var table in tables)
+        foreach (var row in await GetAllRowsAsync())
         {
-            var rows = await matches.GetRowsAsync(table);
+            var homeTeamLink = Cell(row, HomeTeamColumnIndex).Locator("a").First;
 
-            foreach (var row in rows)
-            {
-                var homeTeamLink = row
-                    .Locator("td")
-                    .Nth(2)
-                    .Locator("a")
-                    .First;
-
-                Assert.That(
-                    await homeTeamLink.CountAsync(),
-                    Is.GreaterThan(0),
-                    "Home team link should be present.");
-
-                var homeTeam = (
-                    await homeTeamLink
-                        .InnerTextAsync())
-                    .Trim();
-
-                Assert.That(
-                    homeTeam,
-                    Is.Not.Empty,
-                    "Home team name should not be empty.");
-            }
+            await Expect(homeTeamLink).ToBeVisibleAsync();
+            await Expect(homeTeamLink).ToHaveTextAsync(new Regex(@"\S+"));
         }
     }
 
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveAwayTeams()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
-
-        foreach (var table in tables)
+        foreach (var row in await GetAllRowsAsync())
         {
-            var rows = await matches.GetRowsAsync(table);
+            var awayTeamLink = Cell(row, AwayTeamColumnIndex).Locator("a").First;
 
-            foreach (var row in rows)
-            {
-                var awayTeamLink = row
-                    .Locator("td")
-                    .Nth(6)
-                    .Locator("a")
-                    .First;
-
-                Assert.That(
-                    await awayTeamLink.CountAsync(),
-                    Is.GreaterThan(0),
-                    "Away team link should be present.");
-
-                var awayTeam = (
-                    await awayTeamLink
-                        .InnerTextAsync())
-                    .Trim();
-
-                Assert.That(
-                    awayTeam,
-                    Is.Not.Empty,
-                    "Away team name should not be empty.");
-            }
+            await Expect(awayTeamLink).ToBeVisibleAsync();
+            await Expect(awayTeamLink).ToHaveTextAsync(new Regex(@"\S+"));
         }
     }
 
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveValidMatchTimes()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
         var centralEuropeanTimeZone = TimeZoneInfo.FindSystemTimeZoneById(
             OperatingSystem.IsWindows() ? "W. Europe Standard Time" : "Europe/Berlin");
         var centralEuropeanNow = TimeZoneInfo.ConvertTimeFromUtc(
             DateTime.UtcNow, centralEuropeanTimeZone);
 
-        foreach (var table in tables)
+        foreach (var table in _tables)
         {
-            var rows = await matches.GetRowsAsync(table);
             var matchDate = string.Empty;
 
-            foreach (var row in rows)
+            foreach (var row in await _matches.GetRowsAsync(table))
             {
-                var rowDate = (await row.Locator("td").Nth(0).InnerTextAsync()).Trim();
+                var rowDate = (await Cell(row, DateColumnIndex).InnerTextAsync()).Trim();
                 if (!string.IsNullOrEmpty(rowDate))
                     matchDate = rowDate;
 
-                var time = (
-                    await row
-                        .Locator("td")
-                        .Nth(4)
-                        .InnerTextAsync())
-                    .Trim();
+                var time = (await Cell(row, TimeColumnIndex).InnerTextAsync()).Trim();
 
                 var isFuture = DateTime.TryParseExact(
                     $"{matchDate} {time}", "ddd dd/MM/yyyy h:mm tt",
@@ -211,52 +143,26 @@ public class HomePageTests : BaseTest
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveHomeTeamImages()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
-
-        foreach (var table in tables)
+        foreach (var row in await GetAllRowsAsync())
         {
-            var rows = await matches.GetRowsAsync(table);
+            var image = Cell(row, HomeTeamImageColumnIndex)
+                .Locator("a img")
+                .First;
 
-            foreach (var row in rows)
-            {
-                var image = row
-                    .Locator("td")
-                    .Nth(3)
-                    .Locator("a img")
-                    .First;
-
-                Assert.That(
-                    await image.CountAsync(),
-                    Is.GreaterThan(0),
-                    "Home team image should be present.");
-            }
+            await Expect(image).ToBeVisibleAsync();
         }
     }
 
     [Test]
     public async Task HomePage_GamesTables_ShouldHaveAwayTeamImages()
     {
-        var matches = new HomeMatchesTableComponent(Page);
-        var tables = await matches.GetTablesAsync();
-
-        foreach (var table in tables)
+        foreach (var row in await GetAllRowsAsync())
         {
-            var rows = await matches.GetRowsAsync(table);
+            var image = Cell(row, AwayTeamImageColumnIndex)
+                .Locator("a img")
+                .First;
 
-            foreach (var row in rows)
-            {
-                var image = row
-                    .Locator("td")
-                    .Nth(5)
-                    .Locator("a img")
-                    .First;
-
-                Assert.That(
-                    await image.CountAsync(),
-                    Is.GreaterThan(0),
-                    "Away team image should be present.");
-            }
+            await Expect(image).ToBeVisibleAsync();
         }
     }
 }

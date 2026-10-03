@@ -1,0 +1,51 @@
+name: Playwright tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore Transfermarkt.Playwright.sln
+        working-directory: Transfermarkt.Playwright
+
+      - name: Build solution
+        run: dotnet build Transfermarkt.Playwright.sln --configuration Release --no-restore
+        working-directory: Transfermarkt.Playwright
+
+      - name: Install Playwright Chromium
+        run: pwsh Transfermarkt.Playwright/bin/Release/net8.0/playwright.ps1 install --with-deps chromium
+        working-directory: Transfermarkt.Playwright
+
+      - name: Run tests
+        run: >-
+          dotnet test Transfermarkt.Playwright.sln
+          --configuration Release
+          --no-build
+          --logger "console;verbosity=normal"
+          --logger "trx;LogFileName=playwright-tests.trx"
+        working-directory: Transfermarkt.Playwright
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: Transfermarkt.Playwright/Transfermarkt.Playwright/TestResults/*.trx
+          if-no-files-found: ignore

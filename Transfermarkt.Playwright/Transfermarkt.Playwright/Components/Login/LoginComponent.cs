@@ -12,7 +12,7 @@ public class LoginComponent
         _page = page;
     }
 
-    private ILocator GuestDropdown =>
+    public ILocator GuestDropdown =>
         _page.Locator(Constants.GuestDropdownSelector);
 
     public async Task OpenAsync()
@@ -27,18 +27,6 @@ public class LoginComponent
         await GuestDropdown
             .Locator(Constants.CancelButtonSelector)
             .ClickAsync();
-
-        await GuestDropdown.WaitForAsync(
-            new LocatorWaitForOptions
-            {
-                State = WaitForSelectorState.Hidden,
-                Timeout = 10000
-            });
-    }
-
-    public async Task<bool> IsOpenAsync()
-    {
-        return await GuestDropdown.IsVisibleAsync();
     }
 
     public LoginForm Form =>
