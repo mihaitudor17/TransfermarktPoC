@@ -7,24 +7,29 @@ The project covers the main UI flows requested in the assignment, as well as API
 ## Requirements
 
 * .NET 8 SDK
-* Playwright
-* Chromium
+* PowerShell (`pwsh`) to install Playwright's Chromium browser
 
 ## Running the Tests
 
-Run the full test suite with:
+From the repository root, restore and build the solution, install Chromium, and run the tests:
 
 ```bash
-dotnet test
+cd Transfermarkt.Playwright
+dotnet restore Transfermarkt.Playwright.sln
+dotnet build Transfermarkt.Playwright.sln
+pwsh Transfermarkt.Playwright/bin/Debug/net8.0/playwright.ps1 install chromium
+dotnet test Transfermarkt.Playwright.sln --no-build
 ```
 
-The tests run in headless Chromium.
+The browser tests run in headless Chromium by default. The Playwright NuGet package is restored with the solution; the install command downloads the browser binary.
 
-The latest test execution output is stored in:
+To capture the complete console output as submission evidence, run this from the solution directory after the final changes:
 
-```text
-TestResults/test-output.txt
+```bash
+dotnet test Transfermarkt.Playwright.sln --no-build --logger "console;verbosity=normal" > Transfermarkt.Playwright/TestResults/test-output.txt 2>&1
 ```
+
+This writes `Transfermarkt.Playwright/Transfermarkt.Playwright/TestResults/test-output.txt` from the repository root. This console evidence file is kept in Git; other generated test results remain ignored.
 
 ## Test Coverage
 
@@ -36,7 +41,8 @@ The E2E tests run through the Transfermarkt UI.
 
 They cover:
 
-* Home page match tables
+* Dynamic match tables displayed on the home page
+* Premier League standings table in the browser
 * Search
 * Main navigation
 * Login form behaviour
@@ -50,7 +56,7 @@ The integration tests check HTTP and network behaviour without testing the full 
 They cover:
 
 * Transfermarkt HTTP endpoints
-* Premier League table response
+* Premier League standings endpoint response
 * Search request interception
 * Search request parameters
 
@@ -80,7 +86,7 @@ Integration tests check communication with Transfermarkt.
 
 The API tests use Playwright's `APIRequestContext` to send requests directly to Transfermarkt.
 
-The network tests use Playwright route interception to check the search request and its query parameter.
+The network tests use a browser context and Playwright route interception to check the search request and its query parameter.
 
 These tests were chosen because they test API and network behaviour without the cost of a full browser flow.
 
@@ -113,6 +119,8 @@ Examples:
 * `HomeMatchesTableComponent` exposes the match tables on the home page.
 * `ProfileComponent` handles profile page checks.
 * `CookieBannerComponent` handles the cookie consent UI.
+
+The browser tests inherit from a shared `BrowserTest`, which uses Playwright's NUnit `PageTest` base class. It configures the base URL, opens the home page, accepts cookies and checks for HTTP 5xx responses. Playwright manages the browser, context and page lifecycle.
 
 The tests contain the assertions. The components contain the browser actions and selectors.
 
@@ -155,7 +163,9 @@ For example:
 
 * Home page tests validate table structure, team names, dates and match times.
 * Search tests use different search terms and validate the returned content.
-* Navigation tests validate the active destination instead of relying on a fixed URL.
+* Navigation tests verify the expected URL for each destination.
+* Home page tests validate the match tables currently displayed instead of expecting a fixed set of fixtures.
+* The Premier League standings UI test checks the table structure and row count without depending on which clubs occupy particular positions.
 * Login tests validate form behaviour rather than depending on a successful login.
 
 The tests use Playwright locators and assertions to wait for page elements.
@@ -176,19 +186,23 @@ The HTTP 5xx monitor checks responses generated during the tested browser flows.
 
 ## Test Execution Evidence
 
-The repository contains the output from a full test run:
+Save the complete output from the final full test run at:
 
 ```text
-TestResults/test-output.txt
+Transfermarkt.Playwright/Transfermarkt.Playwright/TestResults/test-output.txt
 ```
 
-The file contains the console output from:
+The file contains the complete output from the final test run. To regenerate it from the solution directory, run:
 
 ```bash
-dotnet test
+dotnet test Transfermarkt.Playwright.sln --no-build --logger "console;verbosity=normal" > Transfermarkt.Playwright/TestResults/test-output.txt 2>&1
 ```
 
 This provides evidence that the test suite was executed locally.
+
+## Continuous Integration
+
+The GitHub Actions workflow in `.github/workflows/playwright.yml` builds the solution, installs Chromium, runs the test suite, and uploads the NUnit test results. The tests use the live Transfermarkt website, so workflow results depend on that external site being reachable and allowing requests from the runner.
 
 ## Assumptions
 
@@ -204,43 +218,25 @@ This provides evidence that the test suite was executed locally.
 Transfermarkt.Playwright/
 ├── Components/
 │   ├── Cookies/
-│   │   └── CookieBannerComponent.cs
 │   ├── Login/
-│   │   ├── LoginComponent.cs
-│   │   ├── LoginForm.cs
-│   │   └── RegistrationComponent.cs
 │   ├── Profiles/
-│   │   └── ProfileComponent.cs
 │   ├── Search/
-│   │   └── SearchComponent.cs
 │   ├── Tables/
-│   │   ├── HomeMatchesTableComponent.cs
-│   │   └── SearchResultsTableComponent.cs
 │   └── TopBar/
-│       ├── TopBarComponent.cs
-│       ├── TopBarDestination.cs
-│       └── TopBarDestinationExtensions.cs
+│
 ├── Fixtures/
-│   ├── ApiFixture.cs
-│   └── PlaywrightFixture.cs
+│   └── ApiFixture.cs
+│
 ├── Helpers/
-│   ├── Constants.cs
 │   └── HttpErrorMonitor.cs
+│
 ├── Tests/
-│   ├── BaseTest.cs
+│   ├── BrowserTest.cs
 │   ├── E2E/
-│   │   ├── HomePageTests.cs
-│   │   ├── LoginTests.cs
-│   │   ├── RegistrationTests.cs
-│   │   ├── SearchTests.cs
-│   │   └── TopBarTests.cs
 │   ├── Integration/
-│   │   ├── ApiRequestTests.cs
-│   │   └── NetworkTests.cs
 │   └── Unit/
-│       └── TopBarDestinationExtensionsTests.cs
-├── TestResults/
-│   └── test-output.txt
+│
+├── README.md
 └── Transfermarkt.Playwright.csproj
 ```
 
