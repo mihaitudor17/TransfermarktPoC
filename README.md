@@ -84,7 +84,7 @@ The tests also check that every destination has a non-empty and unique display v
 
 Integration tests check communication with Transfermarkt.
 
-The API tests use Playwright's `APIRequestContext` to send requests directly to Transfermarkt.
+The API tests use the browser context's Playwright `APIRequestContext` to send requests directly to Transfermarkt. This shares the browser's cookie state, including the consent setup, with those requests.
 
 The network tests use a browser context and Playwright route interception to check the search request and its query parameter.
 
@@ -224,9 +224,6 @@ Transfermarkt.Playwright/
 │   ├── Tables/
 │   └── TopBar/
 │
-├── Fixtures/
-│   └── ApiFixture.cs
-│
 ├── Helpers/
 │   └── HttpErrorMonitor.cs
 │
@@ -236,7 +233,9 @@ Transfermarkt.Playwright/
 │   ├── Integration/
 │   └── Unit/
 │
-├── README.md
+├── TestResults/
+│   └── test-output.txt
+│
 └── Transfermarkt.Playwright.csproj
 ```
 
